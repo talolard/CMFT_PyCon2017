@@ -6,7 +6,7 @@ class DilatedConv(ModelBase):
     def __init__(self, args):
         super(DilatedConv, self).__init__(args)
 
-    def dilated_conv1d(self, input_):
+    def dilated_conv1d(self, input_,dillation_rate):
         '''
             Write your own dilated_conv1d implementation such that you can pass the input into tensorflow dilated_conv2d function
 
