@@ -20,10 +20,9 @@ class DataLoader():
             txt = f.read()
             sentances = txt.split('\n')#nltk.sent_tokenize(txt)
             sentances = list(map(lambda x:str(x.encode('ascii',errors='ignore')),sentances))
-            self.max_len = max(map(len,sentances))
-            self.max_len =500
-            sentances = map(lambda x: x.ljust(self.max_len,self.PAD_CHAR)[:self.max_len],sentances)
-            org_lower = list(map(lambda x: (x,self.replace_punc(x.lower()).ljust(self.max_len,self.PAD_CHAR)[:self.max_len]),sentances))
+            max_len = max(map(len,sentances))
+            sentances = map(lambda x: x.ljust(max_len,self.PAD_CHAR)[:max_len],sentances)
+            org_lower = list(map(lambda x: (x,self.replace_punc(x.lower()).ljust(max_len,self.PAD_CHAR)[:max_len]),sentances))
         return org_lower
 
     @staticmethod
@@ -43,6 +42,7 @@ class DataLoader():
     def load_data(self):
         if os.path.exists(self.args.saved_data_path):
             self.dataset = np.load(self.args.saved_data_path)
+
         else:
             org_low = self.load_txt_data()
             self.dataset = self.txt_to_array(org_low)
@@ -56,8 +56,9 @@ class DataLoader():
         np.random.shuffle(self.dataset)
         while start < len(self.dataset):
             batch = self.dataset[start:end]
-            original = batch[:,0,:]
-            lowered = batch[:, 1, :]
+            max_len =np.max(np.sum(np.sign(batch[:,0,:]),axis=1))
+            original = batch[:,0,: max_len]
+            lowered = batch[:, 1,: max_len]
             yield original,lowered
             start+=self.args.batch_size
             end  += self.args.batch_size

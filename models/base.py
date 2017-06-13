@@ -1,10 +1,12 @@
 import tensorflow as tf
 import abc
+
 class ModelBase(metaclass=abc.ABCMeta):
     def __init__(self,args):
         self.args = args
         self.original = tf.placeholder(dtype=tf.int32,shape=[None,None])
         self.lower = tf.placeholder(dtype=tf.int32, shape=[None, None])
+        self.batch_max_len = self.original.get_shape().as_list()[1]
         self.embedded_source = self._embed_chars()
         logits = self.get_logits()
         self.loss_op = self._loss(logits)
@@ -26,8 +28,8 @@ class ModelBase(metaclass=abc.ABCMeta):
 
     def _loss(self,logits):
         lengths = tf.reduce_sum(tf.sign(self.original),axis=1)
-        maxlen = self.original.get_shape().as_list()[1]
-        mask = tf.sequence_mask(lengths,dtype=tf.float32,maxlen=500)
+        max_len =self.original.get_shape().as_list()[1]
+        mask = tf.sequence_mask(lengths,dtype=tf.float32,maxlen=max_len)
         loss = tf.contrib.seq2seq.sequence_loss(logits=logits,
                                                 targets=self.original,
                                                 weights = mask
