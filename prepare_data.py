@@ -46,7 +46,8 @@ class DataLoader():
         else:
             org_low = self.load_txt_data()
             self.dataset = self.txt_to_array(org_low)
-            np.save(self.args.saved_data_path,self.dataset)
+            with open(self.args.saved_data_path,'wb') as f:
+                np.save(f,self.dataset)
 
 
     def get_batch(self):
